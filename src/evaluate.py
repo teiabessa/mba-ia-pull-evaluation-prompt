@@ -15,6 +15,9 @@ Suporta múltiplos providers de LLM:
 - Google Gemini (gemini-2.5-flash)
 
 Configure o provider no arquivo .env através da variável LLM_PROVIDER.
+
+Uso:
+  python src/evaluate.py    # avalia prompt bug_to_user_story_v2
 """
 
 import os
@@ -43,7 +46,7 @@ def load_dataset_from_jsonl(jsonl_path: str) -> List[Dict[str, Any]]:
         with open(jsonl_path, 'r', encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
-                if line:  # Ignorar linhas vazias
+                if line:
                     example = json.loads(line)
                     examples.append(example)
 
@@ -87,11 +90,12 @@ def create_evaluation_dataset(client: Client, dataset_name: str, jsonl_path: str
         else:
             dataset = client.create_dataset(dataset_name=dataset_name)
 
-            for example in examples:
+            for idx, example in enumerate(examples):
                 client.create_example(
                     dataset_id=dataset.id,
                     inputs=example["inputs"],
-                    outputs=example["outputs"]
+                    outputs=example["outputs"],
+                    metadata={"source_index": idx}
                 )
 
             print(f"   ✓ Dataset criado com {len(examples)} exemplos")
@@ -154,6 +158,9 @@ def evaluate_prompt_on_example(
         response = chain.invoke(inputs)
         answer = response.content
 
+        # Usa outputs diretamente do objeto example do LangSmith.
+        # O example.inputs e example.outputs do mesmo objeto estão sempre
+        # alinhados — é garantia da API.
         reference = outputs.get("reference", "") if isinstance(outputs, dict) else ""
 
         if isinstance(inputs, dict):
@@ -188,7 +195,12 @@ def evaluate_prompt(
     try:
         prompt_template = pull_prompt_from_langsmith(prompt_name)
 
-        examples = list(client.list_examples(dataset_name=dataset_name))
+        # Ordena por source_index para garantir ordem deterministica do .jsonl
+        all_examples = list(client.list_examples(dataset_name=dataset_name))
+        examples = sorted(
+            all_examples,
+            key=lambda x: (x.metadata or {}).get("source_index", 999)
+        )
         print(f"   Dataset: {len(examples)} exemplos")
 
         llm = get_llm()
@@ -304,7 +316,7 @@ def main():
         print("\nCertifique-se de que o arquivo existe antes de continuar.")
         return 1
 
-    dataset_name = f"{project_name}-eval"
+    dataset_name = os.getenv("DATASET_NAME", f"{project_name}-eval")
     create_evaluation_dataset(client, dataset_name, jsonl_path)
 
     print("\n" + "=" * 70)
@@ -369,10 +381,10 @@ def main():
 
     print(f"Prompts avaliados: {evaluated_count}")
     print(f"Aprovados: {sum(1 for r in results_summary if r['passed'])}")
-    print(f"Reprovados: {sum(1 for r in results_summary if not r['passed'])}\n")
+    print(f"Reprovados: {sum(1 for r in results_summary if not r['passed'])}")
 
     if all_passed:
-        print("✅ Todos os prompts atingiram todas as métricas >= 0.9!")
+        print("\n✅ Todos os prompts atingiram todas as métricas >= 0.9!")
         print(f"\n✓ Confira os resultados em:")
         print(f"  https://smith.langchain.com/projects/{project_name}")
         print("\nPróximos passos:")
@@ -381,7 +393,7 @@ def main():
         print("3. Faça commit e push para o GitHub")
         return 0
     else:
-        print("⚠️  Alguns prompts não atingiram todas as métricas >= 0.9")
+        print("\n⚠️  Alguns prompts não atingiram todas as métricas >= 0.9")
         print("\nPróximos passos:")
         print("1. Refatore os prompts com score baixo")
         print("2. Faça push novamente: python src/push_prompts.py")
