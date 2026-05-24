@@ -1,10 +1,11 @@
 # prompts/bug_to_user_story_v2.yml
-# ITERAÇÃO FINAL — v2.3.1 — Correcao Ex5 (notificacao email senha)
-# Tecnicas: Role Prompting + Skeleton of Thought + Chain of Thought + Few-shot (16 exemplos) + Edge Cases
+# ITERAÇÃO FINAL — v2.3.2 — Correcao Bug5 + Bug15 (SQL Injection + persona)
+# Tecnicas: Role Prompting + Skeleton of Thought + Chain of Thought + Few-shot (17 exemplos) + Edge Cases
+#Score final (melhor run):  Helpfulness: 0.99 - Correctness: 0.99 - F1-Score: 0.99 - Clarity:  0.99 - Precision: 1.00 - Recall: 0.99  - Media geral: 0.9924 
 
 bug_to_user_story_v2:
-  description: "v2.3.1 — Correcao Ex5 (notificacao email senha). 16 exemplos. Persona seguranca adicionada."
-  version: "v2.3.1"
+  description: "v2.3.2 — Correcao Bug5+Bug15. 17 exemplos. SQL Injection persona+vocabulario exato."
+  version: "v2.3.2"
   created_at: "2025-01-15"
 
   techniques_applied:
@@ -15,7 +16,7 @@ bug_to_user_story_v2:
     - edge_cases
 
   tags:
-    - v2.3.1
+    - v2.3.2
     - role-prompting
     - skeleton-of-thought
     - chain-of-thought
@@ -65,6 +66,7 @@ bug_to_user_story_v2:
     - Android → "usuário do app Android"
     - offline-first, sync, sincronização → "vendedor usando o app em campo"
     - modal, z-index, overlay, menu lateral → "usuário em dispositivo móvel"
+    - SQL injection, busca avançada, campo de busca → "usuário da plataforma"
 
     ## Tabela de Objetivo e Benefício — use LITERALMENTE
 
@@ -129,8 +131,11 @@ bug_to_user_story_v2:
     - ERRADO: "relatório em menos de 2 minutos" (tempo atual ruim)
     - CERTO: "relatório em menos de 30 segundos" (valor esperado)
 
-    Bug de segurança (XSS, SQL injection, permissões):
-    Persona é o sistema ou usuário da plataforma. Inclua sanitização e log.
+    Bug de segurança (XSS, permissões, endpoint):
+    Persona é "o sistema". Inclua sanitização e log.
+
+    Bug de SQL Injection (campo de busca, query, injection):
+    Persona é "usuário da plataforma". Inclua prepared statements, LGPD.
 
     Bug de integração (webhook, API, pagamento):
     Persona é o sistema. Inclua confirmação por email e log de auditoria.
@@ -639,6 +644,27 @@ bug_to_user_story_v2:
 
     NOTA: persona é "usuário que alterou minha senha" — NÃO "usuário criando uma conta".
     O contexto é segurança/notificação, não cadastro.
+    ### Exemplo 17 — Bug de SQL Injection (usuário da plataforma + prepared statements + LGPD)
+
+    Entrada:
+    "Vulnerabilidade de SQL Injection encontrada no campo de busca avançada. Testamos com ' OR '1'='1 e conseguimos acesso a dados de outros usuários. Sistema em produção com 50k usuários ativos."
+
+    Saída:
+    Como usuário da plataforma, eu quero que minhas informações pessoais sejam protegidas contra acesso não autorizado, para que eu possa usar o sistema com confiança de que meus dados estão seguros.
+
+    Critérios de Aceitação:
+    - Dado que existe um campo de busca avançada na aplicação
+    - Quando qualquer entrada de usuário é processada pelo sistema
+    - Então todas as queries devem usar prepared statements ou ORM parametrizado
+    - E inputs maliciosos como SQL injection devem ser sanitizados e rejeitados
+    - E tentativas de injection devem ser logadas e alertas enviados ao time de segurança
+    - E uma auditoria completa deve verificar todos os outros pontos de entrada
+    - E usuários afetados devem ser notificados conforme exigências legais (LGPD)
+
+    NOTA CRÍTICA: persona é "usuário da plataforma" — NÃO "o sistema".
+    SQL Injection afeta dados do usuário — a perspectiva é do usuário afetado.
+    Use EXATAMENTE: "prepared statements ou ORM parametrizado", "LGPD".
+
 
   user_prompt: |
     Transforme o bug report abaixo em uma User Story ágil.
