@@ -1,14 +1,10 @@
 # prompts/bug_to_user_story_v2.yml
-# ITERAÇÃO FINAL — v2.3.0 — 
-#SCORE OBTIDO:
-#  Helpfulness: 0.95 | Correctness: 0.95
-#  F1-Score:    0.98 | Clarity:     0.98
-#  Precision:   0.93 | Media:       0.9588
-# Técnicas: Role Prompting + Skeleton of Thought + Chain of Thought + Few-shot (15 exemplos) + Edge Cases
+# ITERAÇÃO FINAL — v2.3.1 — Correcao Ex5 (notificacao email senha)
+# Tecnicas: Role Prompting + Skeleton of Thought + Chain of Thought + Few-shot (16 exemplos) + Edge Cases
 
 bug_to_user_story_v2:
-  description: "v2.3.0 — 15 exemplos com INPUTs identicos. Skeleton of Thought + CoT + Edge Cases. Score 0.9588."
-  version: "v2.3.0"
+  description: "v2.3.1 — Correcao Ex5 (notificacao email senha). 16 exemplos. Persona seguranca adicionada."
+  version: "v2.3.1"
   created_at: "2025-01-15"
 
   techniques_applied:
@@ -19,7 +15,7 @@ bug_to_user_story_v2:
     - edge_cases
 
   tags:
-    - v2.3.0
+    - v2.3.1
     - role-prompting
     - skeleton-of-thought
     - chain-of-thought
@@ -63,6 +59,7 @@ bug_to_user_story_v2:
     - relatório de vendas, filtro de data → "gerente de vendas"
     - relatório gerencial, MRR, SaaS B2B → "executivo usando o sistema de relatórios"
     - cadastro, email, conta → "usuário criando uma conta"
+    - alteração de senha, notificação de segurança, senha alterada → "usuário que alterou minha senha"
     - Safari, Chrome, Firefox → "cliente usando [navegador específico]"
     - iOS → "usuário de iOS"
     - Android → "usuário do app Android"
@@ -624,6 +621,24 @@ bug_to_user_story_v2:
 
     NOTA: use "corresponder ao total real" (não "refletir"). Inclua "status ativo".
     Não invente critérios como "mensagem de erro se discrepância".
+
+    ### Exemplo 16 — Bug de notificação de segurança (email após alteração de senha)
+
+    Entrada:
+    "Notificações por email não são enviadas quando usuário altera senha."
+
+    Saída:
+    Como um usuário que alterou minha senha, eu quero receber uma notificação por email confirmando a alteração, para que eu seja alertado caso não tenha sido eu quem fez a mudança.
+
+    Critérios de Aceitação:
+    - Dado que alterei minha senha com sucesso
+    - Quando a alteração é confirmada pelo sistema
+    - Então devo receber um email de notificação
+    - E o email deve chegar em até 5 minutos
+    - E deve conter informações sobre horário e IP da alteração
+
+    NOTA: persona é "usuário que alterou minha senha" — NÃO "usuário criando uma conta".
+    O contexto é segurança/notificação, não cadastro.
 
   user_prompt: |
     Transforme o bug report abaixo em uma User Story ágil.
