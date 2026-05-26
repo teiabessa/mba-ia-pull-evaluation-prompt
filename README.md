@@ -180,7 +180,11 @@ https://smith.langchain.com/projects/bug_to_user_story
 | Tracing v2.0.0 | `screens/tracing_v2_0_0.jpg` |
 | Tracing v2.1.0 | `screens/tracing_v2_1_0.jpg` |
 | Tracing v2.2.0 | `screens/tracing_v2_2_0.jpg` |
-| Tracing v2.3.2 (3 exemplos detalhados) | `screens/tracing_v2_3_2.jpg` |
+| Tracing v2.3.2 — bloco 1 (15 bugs processados) | `screens/tracing_v2_3_2_bloco1.jpg` |
+| Tracing v2.3.2 — bloco 2 (detalhes dos traces) | `screens/tracing_v2_3_2_bloco2.jpg` |
+| Tracing v2.3.2 — bloco 3 (avaliações GPT-4o) | `screens/tracing_v2_3_2_bloco3.jpg` |
+| Tracing v2.3.2 — bloco 4 (scores por exemplo) | `screens/tracing_v2_3_2_bloco4.jpg` |
+| Tracing v2.3.2 — bloco 5 (resultado final) | `screens/tracing_v2_3_2_bloco5.jpg` |
 | Testes pytest — 6/6 passando | `screens/teste_prompt.jpg` |
 
 ---
@@ -222,10 +226,18 @@ LANGSMITH_API_KEY=sua_chave_aqui
 LANGSMITH_PROJECT=bug_to_user_story
 DATASET_NAME=bug_to_user_story-eval
 USERNAME_LANGSMITH_HUB=seu_username
+
+# OpenAI Configuration
 LLM_PROVIDER=openai
 LLM_MODEL=gpt-4o-mini
 EVAL_MODEL=gpt-4o
 OPENAI_API_KEY=sua_chave_aqui
+
+# Google Gemini Configuration 
+#GOOGLE_API_KEY=sua_chave_aqui
+#LLM_PROVIDER=google
+#LLM_MODEL=gemini-2.5-flash
+#EVAL_MODEL=gemini-2.5-flash
 ```
 
 ### Ordem de Execução
@@ -237,7 +249,7 @@ python src/pull_prompts.py
 # Fase 2: Editar o prompt v2 otimizado
 # Edite manualmente: prompts/bug_to_user_story_v2.yml
 
-# Fase 3: Push do prompt otimizado
+# Fase 3: Push do prompt otimizado 
 python src/push_prompts.py
 
 # Fase 4: Avaliar (repita até todas as métricas >= 0.9)
@@ -246,7 +258,7 @@ python src/evaluate.py
 # Testes de validação estrutural
 pytest tests/test_prompts.py -v
 
-# Debug — inspecionar outputs do modelo
+# Debug — Alternativa para inspecionar outputs do modelo/utilização de menos tokens do que evaluate.py
 python src/debug_dataset.py
 ```
 
@@ -266,11 +278,7 @@ PASSED test_minimum_techniques
 
 ---
 
-## Leis Empíricas Descobertas
+## Autor
 
-1. **INPUT idêntico ao dataset = ~99% de fidelidade** — maior fator isolado de ganho
-2. **Modelo segue o OUTPUT do exemplo, não a NOTA** — NOTA dupla = omissão
-3. **OBRIGATÓRIO/PROIBIDO > emojis** — tokenização mais limpa
-4. **Instrução condicional no CoT contamina todos** — pior erro descoberto
-5. **Variância do avaliador GPT-4o** — mesmo output pode ter scores diferentes entre runs
-6. **Ordem da API LangSmith é não-determinística** — `source_index` resolve a reprodutibilidade
+Projeto desenvolvido por **Auricélia Bessa Alves**
+MBA em Engenharia de Software com IA — Full Cycle
