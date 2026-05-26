@@ -9,6 +9,7 @@ Este script:
 5. Calcula 5 métricas (Helpfulness, Correctness, F1-Score, Clarity, Precision)
 6. Publica resultados no dashboard do LangSmith
 7. Exibe resumo no terminal
+8. API LangSmith retornava exemplos em ordem aleatoria entre runs, agora ordenamos por source_index para garantir consistência com a ordem do .jsonl
 
 Suporta múltiplos providers de LLM:
 - OpenAI (gpt-4o, gpt-4o-mini)
